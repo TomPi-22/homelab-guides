@@ -56,7 +56,7 @@ This guide covers the deployment and configuration of a Splunk Enterprise virtua
 
 Create a new virtual machine in VMware Workstation Pro with the following specifications:
 
-![VMware Configuration](images/vmware-config.png)
+![VMware Configuration](images/vmware_config.png)
 
 > **Note:** Remove the USB Controller, Sound Card, CD/DVD (SATA), and Floppy Drive from the VM hardware configuration. CD/DVD 2 (SATA) should not be deleted.
 
@@ -115,6 +115,8 @@ sudo chmod 600 /etc/netplan/01-network-manager-all.yaml
 
 ### 5.1 Disk Image
 
+Ubuntu Desktop 24.04.4 LTS was selected as the guest OS for its long-term support, stability, and compatibility with Splunk Enterprise.
+
 | Property | Value |
 |----------|-------|
 | Distribution | Ubuntu Desktop |
@@ -125,6 +127,8 @@ sudo chmod 600 /etc/netplan/01-network-manager-all.yaml
 | LTS Support Until | April 2029 |
 
 ### 5.2 Installation Configuration
+
+The following selections were made during the Ubuntu installation wizard to produce a clean, minimal installation suitable for a dedicated server environment.
 
 | Screen | Selection |
 |--------|-----------|
@@ -165,6 +169,8 @@ Select **Linux** as the platform and copy the provided `wget` command to downloa
 
 ### 6.2 Installation
 
+The following command installs Splunk Enterprise to `/opt/splunk` on the virtual machine.
+
 ```bash
 sudo dpkg -i splunk-*.deb
 ```
@@ -188,11 +194,15 @@ You will be prompted to create an admin username and password. Save these creden
 
 ### 6.5 Boot Start Configuration
 
+Splunk was configured to start automatically on system boot to ensure there are no lapses in log ingestion.
+
 ```bash
 sudo /opt/splunk/bin/splunk enable boot-start -user splunk
 ```
 
 ### 6.6 Verification
+
+Verify the Splunk service is active and running:
 
 ```bash
 sudo systemctl list-units --type=service | grep -i splunk
@@ -204,11 +214,15 @@ Access the Splunk web interface from the Windows host browser using the URL prov
 
 ![Splunk Dashboard](images/splunk-dashboard.png)
 
+The screenshots above are indicators of successful configuration, status, and accessibility.
+
 ---
 
 ## 7. Virtual Machine Hardening
 
 ### 7.1 Hardware Hardening
+
+The following components were removed from the VM configuration in VMware Workstation Pro. These serve no functional purpose in this environment and their removal reduces the attack surface.
 
 | Component | Action |
 |-----------|--------|
@@ -219,12 +233,16 @@ Access the Splunk web interface from the Windows host browser using the URL prov
 
 ### 7.2 Service Hardening
 
+The following unnecessary services were identified and disabled to reduce active processes and potential attack vectors on this virtual machine.
+
 ```bash
 sudo systemctl disable --now avahi-daemon cups cups-browsed kerneloops ModemManager
 sudo systemctl disable --now avahi-daemon.socket
 ```
 
 ### 7.3 Firewall Configuration (UFW)
+
+UFW was installed and configured to restrict all inbound traffic to only the ports Splunk requires, exclusively from the lab network.
 
 Install UFW and set default rules:
 
@@ -247,12 +265,21 @@ sudo ufw allow from <lab-network>/24 to any port 8000 proto tcp
 sudo ufw allow from <lab-network>/24 to any port 9997 proto tcp
 sudo ufw allow from <lab-network>/24 to any port 8089 proto tcp
 sudo ufw enable
+```
+
+Verify status and confirm correct configuration:
+
+```bash
 sudo ufw status
 ```
 
 ![UFW Status](images/ufw-status.png)
 
+> **Note:** Users should expect the same output as above, with different `from` addresses reflecting their own lab network configuration.
+
 ### 7.4 Automated Security Updates
+
+Unattended-upgrades were configured to automatically apply security patches, ensuring the VM remains patched during extended periods of inactivity.
 
 ```bash
 sudo apt install unattended-upgrades -y
