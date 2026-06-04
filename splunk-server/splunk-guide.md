@@ -292,7 +292,7 @@ When prompted, select **YES** to automatically install stable updates.
 sudo systemctl status unattended-upgrades
 ```
 
-![Unattended Upgrades Status](images/unattended-upgrades-status.png)
+![Unattended Upgrades Status](images/unnattended-upgrades-status.png)
 
 ### 7.5 VMnet8 Removal
 
