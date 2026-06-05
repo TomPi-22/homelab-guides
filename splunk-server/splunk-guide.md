@@ -470,6 +470,8 @@ nslookup pagead2.googlesyndication.com <pihole-ip>
 
 All three should return `0.0.0.0`. 
 
+![Blocked Domain Search](images/blocked-domain-search.png)
+
 **Confirm in Splunk:**
 
 ```bash
@@ -484,7 +486,9 @@ Send 1,500 DNS queries from the Windows host:
 1..1500 | ForEach-Object { Resolve-DnsName -Name "google.com" -Server <pihole-ip> -ErrorAction SilentlyContinue }
 ```
 
-Confirm the spike is visible in the Pi-Hole DNS Activity dashboard.
+Confirm the spike is visible in the Pi-Hole DNS Activity dashboard, as seen below.
+
+![DNS Spike Dashboard](images/dns-spike-dashboard.png)
 
 ### 11.3 Failed Logon Simulation
 
@@ -502,7 +506,13 @@ $credential = New-Object System.Management.Automation.PSCredential("fakeuser", (
 
 index=main host="<windows-hostname>" source="WinEventLog:Security" EventCode=4625 | table _time Account_Name | sort -_time | head 10
 
+![Failed Logon Search](images/failed-logon-search.png)
+
 ### 11.4 Pipeline Verification Summary
+
+To confirm all alerts triggered correctly, navigate to **Activity → Triggered Alerts** in the Splunk web interface and set the app filter to **All Apps**. Alerts, severity, type, and time should be visible.
+
+![Triggered Alerts](images/triggered-alerts.png)
 
 | Test | Result |
 |------|--------|
@@ -512,6 +522,8 @@ index=main host="<windows-hostname>" source="WinEventLog:Security" EventCode=462
 | Windows log forwarding to Splunk | Confirmed — failed logon entries visible |
 | Alert configuration | Confirmed — 6 alerts active and scheduled |
 | Dashboard functionality | Confirmed — all panels populated |
+
+**Note:** Email notifications require SMTP configuration in Splunk. This can be configured via **Settings → Server Settings → Email Settings**.
 
 ---
 
